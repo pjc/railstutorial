@@ -12,8 +12,9 @@
 class User < ActiveRecord::Base
   attr_accessible :email, :name, :password, :password_confirmation
 
-  # DB is case sensitive hence always save the lowercase version of pw
-  before_save { |user| user.email = self.email.downcase }
+  # DB is case sensitive hence always save the lowercase version of email
+  # before_save { |user| user.email = self.email.downcase }
+  before_save { self.email.downcase! } # is the same as line above
 
   has_secure_password
 
