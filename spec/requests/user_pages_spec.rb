@@ -36,6 +36,29 @@ describe "User Pages" do
 	  		# initial_count.should == after_count
 	  		expect { click_button submit }.not_to change(User, :count)
   		end
+
+      describe "after submission" do
+
+        before { click_button submit }
+
+        it "should have all the right error messages" do
+          should have_selector('div', text: "The form contains 6 errors.")
+          # should have_content 'The form contains 6 errors.'
+
+          should have_selector('li',  text: "Password can't be blank")
+          should have_selector('li',  text: "Name can't be blank")
+          should have_selector('li',  text: "Email can't be blank")
+          should have_selector('li',  text: "Email is invalid")
+          should have_selector('li',  text: "Password is too short")
+          should have_selector('li',  text: "Password confirmation can't be blank")
+        end
+
+        it "should render sign up page again" do 
+          should have_selector 'h1',    text: 'Sign up'
+          should have_selector 'title', text: 'Sign up'
+        end
+
+      end
   	end
 
   	describe "with valid information" do
@@ -49,6 +72,21 @@ describe "User Pages" do
   		it "should create a user" do
   			expect { click_button submit}.to change(User, :count).by(1)
   		end
+
+      describe "after saving the user" do
+
+        before { click_button submit }
+        # This is the email info we just submitted in before do block
+        let(:user) { User.find_by_email('test@example.com') }
+
+        it "should redirect to profile page" do
+          should have_selector('title', text: user.name)
+        end
+
+        it "should show flash success message" do
+          should have_selector('div.alert.alert-success', text: "Welcome")
+        end
+      end
   	end
   end
 end
