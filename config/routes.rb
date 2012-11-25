@@ -7,6 +7,8 @@ Railstutorial::Application.routes.draw do
 
   get "signup"  => 'Users#new', as: :signup
 
+  resources :users
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
