@@ -1,13 +1,18 @@
 Railstutorial::Application.routes.draw do
 
+  resources :users
+  resources :sessions, only: [:new, :create, :destroy]
+
   get "/"       => 'StaticPages#home',    as: :root
   get "help"    => 'StaticPages#help',    as: :help
   get "about"   => 'StaticPages#about',   as: :about
   get "contact" => 'StaticPages#contact', as: :contact
 
   get "signup"  => 'Users#new', as: :signup
+  match '/signin',  to: 'sessions#new'
+  match '/signout', to: 'sessions#destroy', via: :delete
 
-  resources :users
+  
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

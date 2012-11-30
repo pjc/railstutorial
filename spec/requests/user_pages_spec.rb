@@ -86,6 +86,10 @@ describe "User Pages" do
         it "should show flash success message" do
           should have_selector('div.alert.alert-success', text: "Welcome")
         end
+
+        it "should have logged in" do
+          should have_link('Sign out', href: signout_path)
+        end
       end
   	end
   end
