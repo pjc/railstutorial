@@ -77,6 +77,8 @@ class UsersController < ApplicationController
   end
 
   def not_signed_in
-    redirect_to root_path if signed_in?
+    if signed_in?
+    redirect_to root_path, notice: "You are already signed in." 
+    end
   end
 end
