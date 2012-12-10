@@ -33,6 +33,14 @@ describe User do
 	it { should respond_to(:remember_token) }
 	it { should respond_to(:admin) }
 
+	describe "accessible attributes (mass assignment)" do
+		it "should not allow access to admin" do
+			expect do
+				User.new(admin: true)
+			end.to raise_error(ActiveModel::MassAssignmentSecurity::Error)
+		end
+	end
+
 	describe "when name is not present" do
 		before { @user.name = "" }
 		it { should_not be_valid }
@@ -121,7 +129,6 @@ describe User do
 			# it and specify are synonyms, use what 'reads' best
 			specify { user_for_invalid_password.should be_false }
 		end
-
 	end 
 
 	describe "remember token" do

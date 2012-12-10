@@ -16,6 +16,10 @@ describe "Authentication" do
     	it { should have_selector('div.alert.alert-error', text: 'Invalid') }
     	it { should have_selector('title', text: 'Sign in') }
 
+      # Exercise 3 chapter 9
+      it { should_not have_link('Profile') }
+      it { should_not have_link('Settings') }
+
       # We render and not redirect_to so we need to use flash.now and not flash
       describe "after visiting another page" do
           before { click_link "Home" }
@@ -44,7 +48,7 @@ describe "Authentication" do
     end
   end
 
-  describe "authorization" do
+  describe "authorization (before_filter's)" do
 
     describe "for non-signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
@@ -52,8 +56,8 @@ describe "Authentication" do
       describe "in the Users controller" do
 
         describe "visiting the edit page" do
-          before  { visit edit_user_path(user) }
-          it      { should have_selector('title', text: 'Sign in') }
+          before  { get edit_user_path(user) }
+          it      { response.should redirect_to(signin_path) }
         end
 
         describe "submitting to the update action" do
@@ -62,7 +66,7 @@ describe "Authentication" do
         end
 
         describe "visiting the index page" do
-          before { get users_path }
+          before  { get users_path }
           specify { response.should redirect_to(signin_path) }
         end
       end
@@ -78,6 +82,17 @@ describe "Authentication" do
         describe "after signing in"
           it "should render the desired protected page" do
             page.should have_selector('title', text: 'Edit user')
+          end
+
+          describe "when signing in again" do
+            before do
+              delete signout_path
+              sign_in user
+            end
+
+            it "should render the default (profile) page" do
+              page.should have_selector('title', text: user.name)
+            end
           end
         end
       end
@@ -111,6 +126,34 @@ describe "Authentication" do
         before { delete user_path(user) }
         specify { response.should redirect_to(root_path) }
       end
+    end
+
+    describe "as signed-in user" do
+      let(:user) { FactoryGirl.create(:user) }
+      before { sign_in user }
+
+      describe "visiting Users#new action" do
+        before { get new_user_path }
+        it { response.should redirect_to root_path }
+      end
+
+      describe "visiting Users#create action" do
+        before { post users_path }
+        it { response.should redirect_to root_path }
+      end
+    end
+  end
+
+  describe "destroying admin as admin" do
+    let(:admin_user) { FactoryGirl.create(:user) }
+    before do 
+      admin_user.toggle!(:admin)
+      # We need to sign in as we need current_user to work
+      sign_in admin_user
+    end
+
+    it "should not be possible" do
+      expect { delete user_path(admin_user) }.not_to change(User, :count)
     end
   end
 end
